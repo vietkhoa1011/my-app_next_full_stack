@@ -1,17 +1,3 @@
-import type { AnimeHomepageItem } from "@/app/homepage-service";
-
-export interface Anime extends AnimeHomepageItem {
-    genres: string[];
-    synopsis?: string;
-}
-
-export function toAnime(item: AnimeHomepageItem, genres?: string[]): Anime {
-    return {
-        ...item,
-        genres: genres || getFallbackGenres(item.Title),
-    };
-}
-
 // Fallback genres based on anime title keywords (since DB doesn't have genres)
 export function getFallbackGenres(title: string): string[] {
     const t = title.toLowerCase();
@@ -35,12 +21,6 @@ export function getFallbackGenres(title: string): string[] {
     }
     const allGenres = Array.from(matched);
     return allGenres.length > 0 ? allGenres : ["Fantasy", "Action"];
-}
-
-export function formatMembers(members: number): string {
-    if (members >= 1000000) return (members / 1000000).toFixed(1) + "M";
-    if (members >= 1000) return (members / 1000).toFixed(0) + "K";
-    return members.toString();
 }
 
 export const genresList = [

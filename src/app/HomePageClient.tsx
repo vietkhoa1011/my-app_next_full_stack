@@ -1,14 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { AnimeHomepageItem } from "@/app/homepage-service";
-import { toAnime, getFallbackGenres, genresList } from "@/lib/anime-helpers";
-import type { Anime } from "@/lib/anime-helpers";
+import type { AnimeCard } from "@/features/anime/types/Anime";
+import { getFallbackGenres, genresList } from "@/features/anime/utils";
+import AnimeCardBase from "@/components/ui/AnimeCardBase";
 import HeroSection from "@/components/home/HeroSection";
-import TopRatedSection from "@/components/home/TopRatedSection";
-import PopularSection from "@/components/home/PopularSection";
-import RecentSection from "@/components/home/RecentSection";
-import AnimeCard from "@/components/home/AnimeCard";
 
 const StatCard = ({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) => (
     <div className="relative group p-6 rounded-2xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-purple-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 transform hover:-translate-y-1">
@@ -43,20 +39,24 @@ export default function HomePageClient({
     popular,
     recent,
 }: {
-    featured: AnimeHomepageItem | null;
-    topRated: AnimeHomepageItem[];
-    popular: AnimeHomepageItem[];
-    recent: AnimeHomepageItem[];
+    featured: AnimeCard | null;
+    topRated: AnimeCard[];
+    popular: AnimeCard[];
+    recent: AnimeCard[];
 }) {
     const [activeGenre, setActiveGenre] = useState<string>("Action");
 
-    const featuredAnime: Anime | null = featured ? toAnime(featured) : null;
-    const topRatedAnime: Anime[] = topRated.map((item) => toAnime(item));
-    const popularAnime: Anime[] = popular.map((item) => toAnime(item, getFallbackGenres(item.Title)));
-    const recentAnime: Anime[] = recent.map((item) => toAnime(item));
+    // Add genres to anime for display
+    const featuredAnime = featured
+        ? { ...featured, genres: featured.genres || getFallbackGenres(featured.title) }
+        : null;
+    const popularAnime = popular.map((a) => ({
+        ...a,
+        genres: getFallbackGenres(a.title),
+    }));
 
     return (
-        <>
+        <div className="min-h-screen bg-[#0a0a1a] text-white selection:bg-purple-500/30 selection:text-white">
             {/* Hero Banner */}
             {featuredAnime && <HeroSection anime={featuredAnime} />}
 
@@ -77,17 +77,84 @@ export default function HomePageClient({
                     </div>
                     <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-transparent">
                         {popularAnime.slice(0, 7).map((anime) => (
-                            <AnimeCard key={anime.id} anime={anime} />
+                            <AnimeCardBase
+                                key={anime.id}
+                                id={anime.id}
+                                title={anime.title}
+                                imageUrl={anime.imageUrl}
+                                score={anime.score}
+                                rank={anime.rank}
+                                members={anime.members}
+                                type={anime.type}
+                                episodes={anime.episodes}
+                                genres={anime.genres}
+                            />
                         ))}
                     </div>
                 </section>
             )}
 
             {/* Top Rated Grid */}
-            <TopRatedSection animeList={topRatedAnime} />
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
+                        <span className="w-1 h-8 bg-linear-to-b from-blue-500 to-purple-500 rounded-full" />
+                        Highest Rated
+                    </h2>
+                    <a href="/anime?page=1" className="text-sm text-purple-400 hover:text-pink-400 transition-colors flex items-center gap-1">
+                        View All
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-4">
+                    {topRated.map((anime) => (
+                        <AnimeCardBase
+                            key={anime.id}
+                            id={anime.id}
+                            title={anime.title}
+                            imageUrl={anime.imageUrl}
+                            score={anime.score}
+                            rank={anime.rank}
+                            members={anime.members}
+                            type={anime.type}
+                            episodes={anime.episodes}
+                            genres={getFallbackGenres(anime.title)}
+                        />
+                    ))}
+                </div>
+            </section>
 
             {/* Most Popular Top 10 */}
-            <PopularSection animeList={popularAnime} />
+            <section className="relative py-12 overflow-hidden">
+                <div className="absolute inset-0 bg-linear-to-r from-purple-900/20 via-blue-900/20 to-pink-900/20" />
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
+                            <span className="w-1 h-8 bg-linear-to-b from-pink-500 to-purple-500 rounded-full" />
+                            Most Popular
+                        </h2>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                        {popularAnime.map((anime, index) => (
+                            <AnimeCardBase
+                                key={anime.id}
+                                id={anime.id}
+                                title={anime.title}
+                                imageUrl={anime.imageUrl}
+                                score={anime.score}
+                                rank={anime.rank}
+                                members={anime.members}
+                                type={anime.type}
+                                episodes={anime.episodes}
+                                genres={anime.genres}
+                                showNumber={index + 1}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </section>
 
             {/* Browse by Genre */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -112,48 +179,53 @@ export default function HomePageClient({
                 <div className="absolute inset-0 bg-linear-to-b from-transparent via-purple-900/10 to-transparent" />
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                        <StatCard
-                            label="Anime"
-                            value="24,905"
-                            icon={
-                                <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm3 2h6v4H7V5zm8 8v2h1v-2h-1zm-2-2H7v4h6v-4zm2 0h1V9h-1v2zm1-4V5h-1v2h1zM5 5v2H4V5h1zm0 4H4v2h1V9zm-1 4h1v2H4v-2z" clipRule="evenodd" />
-                                </svg>
-                            }
-                        />
-                        <StatCard
-                            label="Users"
-                            value="731,290"
-                            icon={
-                                <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                                </svg>
-                            }
-                        />
-                        <StatCard
-                            label="Reviews"
-                            value="24M+"
-                            icon={
-                                <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clipRule="evenodd" />
-                                </svg>
-                            }
-                        />
-                        <StatCard
-                            label="Genres"
-                            value="50+"
-                            icon={
-                                <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-                                </svg>
-                            }
-                        />
+                        <StatCard label="Anime" value="24,905" icon={
+                            <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm3 2h6v4H7V5zm8 8v2h1v-2h-1zm-2-2H7v4h6v-4zm2 0h1V9h-1v2zm1-4V5h-1v2h1zM5 5v2H4V5h1zm0 4H4v2h1V9zm-1 4h1v2H4v-2z" clipRule="evenodd" /></svg>
+                        } />
+                        <StatCard label="Users" value="731,290" icon={
+                            <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" /></svg>
+                        } />
+                        <StatCard label="Reviews" value="24M+" icon={
+                            <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clipRule="evenodd" /></svg>
+                        } />
+                        <StatCard label="Genres" value="50+" icon={
+                            <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" /></svg>
+                        } />
                     </div>
                 </div>
             </section>
 
             {/* Recently Added */}
-            <RecentSection animeList={recentAnime} />
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
+                        <span className="w-1 h-8 bg-linear-to-b from-purple-500 to-blue-500 rounded-full" />
+                        Recently Added
+                    </h2>
+                    <a href="/anime?page=1" className="text-sm text-purple-400 hover:text-pink-400 transition-colors flex items-center gap-1">
+                        View All
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-4">
+                    {recent.map((anime) => (
+                        <AnimeCardBase
+                            key={anime.id}
+                            id={anime.id}
+                            title={anime.title}
+                            imageUrl={anime.imageUrl}
+                            score={anime.score}
+                            rank={anime.rank}
+                            members={anime.members}
+                            type={anime.type}
+                            episodes={anime.episodes}
+                            genres={getFallbackGenres(anime.title)}
+                        />
+                    ))}
+                </div>
+            </section>
 
             {/* CTA Section */}
             <section className="relative py-20 overflow-hidden">
@@ -174,6 +246,6 @@ export default function HomePageClient({
                     </button>
                 </div>
             </section>
-        </>
+        </div>
     );
 }

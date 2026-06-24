@@ -1,16 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import type { Anime } from "@/lib/anime-helpers";
-import { formatMembers } from "@/lib/anime-helpers";
+import type { AnimeCard } from "@/features/anime/types/Anime";
+import { formatMembersStrict, formatScore } from "@/features/anime/utils";
 
-export default function HeroSection({ anime }: { anime: Anime }) {
+interface HeroAnime extends AnimeCard {
+    genres: string[];
+}
+
+export default function HeroSection({ anime }: { anime: HeroAnime }) {
     return (
         <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
             <div className="absolute inset-0">
                 <Image
-                    src={anime.image_url}
-                    alt={anime.Title}
+                    src={anime.imageUrl}
+                    alt={anime.title}
                     fill
                     className="object-cover object-center scale-110 blur-sm"
                     priority
@@ -29,7 +33,7 @@ export default function HeroSection({ anime }: { anime: Anime }) {
                     </div>
 
                     <h1 className="text-5xl md:text-7xl font-bold bg-linear-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent leading-tight">
-                        {anime.Title}
+                        {anime.title}
                     </h1>
 
                     <div className="flex flex-wrap gap-2">
@@ -38,13 +42,15 @@ export default function HeroSection({ anime }: { anime: Anime }) {
                                 {genre}
                             </span>
                         ))}
-                        <span className="px-4 py-1.5 rounded-full bg-purple-500/20 backdrop-blur-md text-sm text-purple-300 border border-purple-500/30">
-                            {anime.Type}
-                        </span>
+                        {anime.type && (
+                            <span className="px-4 py-1.5 rounded-full bg-purple-500/20 backdrop-blur-md text-sm text-purple-300 border border-purple-500/30">
+                                {anime.type}
+                            </span>
+                        )}
                     </div>
 
                     <p className="text-gray-300 text-lg leading-relaxed line-clamp-3 max-w-xl">
-                        Score: {anime.Score.toFixed(2)} | Rank: #{anime.Rank || "N/A"} | Members: {formatMembers(anime.Members)}
+                        Score: {formatScore(anime.score)} | Rank: #{anime.rank || "N/A"} | Members: {formatMembersStrict(anime.members)}
                     </p>
 
                     <div className="flex gap-4 pt-2">

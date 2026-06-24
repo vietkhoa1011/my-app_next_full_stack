@@ -1,6 +1,8 @@
 // app/page.tsx
-import { getTopRatedAnime, getMostPopularAnime, getRecentAnime, getFeaturedAnime } from "@/app/homepage-service";
+import { getTopRatedAnime, getMostPopularAnime, getRecentAnime, getFeaturedAnime } from "@/features/homepage/services";
 import HomePageClient from "@/app/HomePageClient";
+
+export const dynamic = "force-dynamic";
 
 export default async function AnimeHomepage() {
   const [featured, topRated, popular, recent] = await Promise.all([
