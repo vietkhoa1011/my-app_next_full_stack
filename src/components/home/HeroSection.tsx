@@ -10,7 +10,7 @@ interface HeroAnime extends AnimeCard {
 
 export default function HeroSection({ anime }: { anime: HeroAnime }) {
     return (
-        <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
+        <section className="relative h-[70vh] min-h-145 overflow-hidden">
             <div className="absolute inset-0">
                 <Image
                     src={anime.imageUrl}
@@ -18,6 +18,7 @@ export default function HeroSection({ anime }: { anime: HeroAnime }) {
                     fill
                     className="object-cover object-center scale-110 blur-sm"
                     priority
+                    loading="eager"
                 />
                 <div className="absolute inset-0 bg-linear-to-r from-[#0a0a1a] via-[#0a0a1a]/80 to-transparent" />
                 <div className="absolute inset-0 bg-linear-to-t from-[#0a0a1a] via-transparent to-transparent" />

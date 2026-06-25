@@ -36,7 +36,7 @@ export default function AnimeDetailClient({
                     <div className="flex flex-col md:flex-row gap-8 items-end md:items-center">
                         {/* Poster Card */}
                         <div className="shrink-0 w-48 sm:w-56 lg:w-64 group">
-                            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl shadow-purple-500/20 transform transition-all duration-500 group-hover:scale-[1.02] group-hover:shadow-purple-500/40">
+                            <div className="relative aspect-3/4 rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl shadow-purple-500/20 transform transition-all duration-500 group-hover:scale-[1.02] group-hover:shadow-purple-500/40">
                                 {anime.imageUrl && (
                                     <Image
                                         src={anime.imageUrl}
